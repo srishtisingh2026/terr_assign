@@ -5,3 +5,4 @@ packages:
 runcmd:
   - systemctl enable nginx
   - systemctl start nginx
+  - echo "Hello from Azure VM via Jenkins + Terraform!" > /var/www/html/index.html
