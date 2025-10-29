@@ -25,12 +25,14 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Subnets
+# Subnets — explicitly depend on the vnet resource to avoid race
 resource "azurerm_subnet" "public" {
   name                 = "public-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_subnet" "private" {
@@ -38,14 +40,19 @@ resource "azurerm_subnet" "private" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.2.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
-# Public IP
+# Public IP (try Standard SKU instead of Basic)
 resource "azurerm_public_ip" "public_ip" {
   name                = "tf-public-ip"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"    # Static with Standard SKU is OK
+  sku                 = "Standard"  # <-- changed from Basic to Standard
+  ip_version          = "IPv4"
+  idle_timeout_in_minutes = 4
 }
 
 # Network Security Group
