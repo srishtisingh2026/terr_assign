@@ -53,6 +53,7 @@ resource "azurerm_public_ip" "public_ip" {
   sku                 = "Standard"  # <-- changed from Basic to Standard
   ip_version          = "IPv4"
   idle_timeout_in_minutes = 4
+  allocation_method = "Static"
 }
 
 # Network Security Group
