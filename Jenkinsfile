@@ -48,6 +48,17 @@ pipeline {
                 sh 'terraform apply -auto-approve tfplan'
             }
         }
+
+        // ✅ Added stage for safe infrastructure destruction
+        stage('Terraform Destroy') {
+            steps {
+                input message: 'Are you sure you want to destroy all infrastructure?'
+                sh '''
+                    echo "Destroying Terraform-managed infrastructure..."
+                    terraform destroy -auto-approve
+                '''
+            }
+        }
     }
 
     post {
