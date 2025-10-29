@@ -85,8 +85,7 @@ resource "azurerm_network_security_group" "nsg" {
     destination_address_prefix  = "*"
   }
 }
-
-# NIC for Public VM
+#NIC for public VM
 resource "azurerm_network_interface" "nic_public" {
   name                = "nic-public"
   location            = azurerm_resource_group.rg.location
@@ -96,8 +95,10 @@ resource "azurerm_network_interface" "nic_public" {
     name                          = "public-nic-ip"
     subnet_id                     = azurerm_subnet.public.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
+    # no public_ip_address_id -> no external IP
   }
+
+  depends_on = [azurerm_subnet.public]
 }
 
 # NIC for Private VM
