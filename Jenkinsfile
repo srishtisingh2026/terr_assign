@@ -9,29 +9,53 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
+                echo 'Cloning the repository...'
                 checkout scm
             }
         }
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                echo 'Initializing Terraform...'
+                sh '''
+                    terraform --version
+                    terraform init -input=false
+                '''
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                echo 'Validating Terraform configuration...'
+                sh 'terraform validate'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan -out=tfplan'
+                echo 'Creating Terraform plan...'
+                sh 'terraform plan -out=tfplan -input=false'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                input message: 'Approve Apply?'
+                input message: 'Do you approve to apply the Terraform changes?'
+                echo 'Applying Terraform changes...'
                 sh 'terraform apply -auto-approve tfplan'
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Terraform pipeline executed successfully!'
+        }
+        failure {
+            echo '❌ Terraform pipeline failed. Check logs for details.'
         }
     }
 }
